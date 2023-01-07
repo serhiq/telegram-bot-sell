@@ -1,0 +1,74 @@
+version: '3.4'
+
+services:
+  bot-service:
+    build:
+      context: ./../bot-service
+      dockerfile: ./../bot-service/bot-service.dockerfile
+    restart: always
+    ports:
+      - "7777:7777"
+
+    env_file:
+      - .env.example
+
+    environment:
+     PORT: 8088
+     MYSQL_USER: user_app
+     MYSQL_PASSWORD: password
+     MYSQL_DATABASE: a_bot_db
+     MYSQL_HOST: mysql
+
+
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - mysql
+    networks:
+      - gateway
+    healthcheck:
+      test: ["CMD", "curl", "-f", "tcp://mysql:3306"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+
+  mysql:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: a_bot_db
+      MYSQL_USER: user_app
+      MYSQL_PASSWORD: password
+
+
+    ports:
+        - "3333:3306"
+    networks:
+      - gateway
+    volumes:
+      - ./db-data/:/var/lib/mysql
+
+  #  adminer:
+  #    restart: always
+  #    image: adminer
+  #    ports:
+  #      - '8888:8080'
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8887:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PASSWORD: password
+      PMA_USER: user_app
+    networks:
+      - gateway
+
+    
+
+networks:
+  gateway: {}
