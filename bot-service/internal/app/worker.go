@@ -42,10 +42,9 @@ func SyncMenu(a *An) error {
 
 		previewImage := ""
 		if item.Image != "" {
-			fakeImageUrl := "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Lemon_-_whole_and_split.jpg/1280px-Lemon_-_whole_and_split.jpg"
 			tmpImage := filepath.Join(config.TempPatch, item.Image)
 			previewImage = filepath.Join(config.PreviewCachePatch, item.Image)
-			err = Download(tmpImage, fakeImageUrl)
+			err = Download(tmpImage, item.ImageUrl)
 			if err != nil {
 				log.Errorf("download: %s", err)
 			}
