@@ -46,9 +46,9 @@ func CommandRouter(msg *tgbotapi.Message, a *An) {
 		order.Comment = "от " + state.NameUser
 		result, err := PostOrder(a, order)
 		if err != nil {
-			log.Println("Ошибка в post заказе", err)
-
+			log.Println("post order: error ", err)
 		}
+
 		if result != nil {
 			log.Print(result)
 
@@ -56,7 +56,7 @@ func CommandRouter(msg *tgbotapi.Message, a *An) {
 			state.ChatState = entity.STATE_PREPARE_ORDER
 			a.Db.UpdateChat(state)
 
-			msg := tgbotapi.NewMessage(state.ChatId, "Ожидайте, мы с вами связаемся для оплаты и уточнения деталей заказа")
+			msg := tgbotapi.NewMessage(state.ChatId, "Ожидайте, мы с Вами свяжемся, для оплаты и уточнения деталей заказа")
 			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
 				tgbotapi.NewKeyboardButtonRow(
 					tgbotapi.NewKeyboardButton(BUTTON_START_NEW_ORDER),

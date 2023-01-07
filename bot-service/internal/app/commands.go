@@ -36,7 +36,7 @@ func StartCommand(bot *tgbotapi.BotAPI, input *tgbotapi.Message) {
 func InputName(bot *tgbotapi.BotAPI, g *entity.GormDatabase, state *entity.Chat) {
 	state.ChatState = entity.INPUT_NAME
 	g.UpdateChat(state)
-	msg := tgbotapi.NewMessage(state.ChatId, "Введите пожалуйста, ваше имя")
+	msg := tgbotapi.NewMessage(state.ChatId, "Введите пожалуйста, Ваше имя")
 	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
 	Respond(bot, msg)
 }

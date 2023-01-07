@@ -28,7 +28,7 @@ func SyncMenu(a *An) error {
 	}
 
 	if resp.StatusCode() != 200 {
-		log.Println("ошибка: " + resp.Status())
+		log.Println("sync: error" + resp.Status())
 		return nil
 	}
 
@@ -144,7 +144,6 @@ func PostOrder(a *An, order *entity.OrderRequest) (*entity.PostOrderResponse, er
 		log.Print("Ответ")
 		log.Print(response)
 		return nil, fmt.Errorf("failed post order: %d", response.StatusCode())
-
 	}
 
 	return &result, err
