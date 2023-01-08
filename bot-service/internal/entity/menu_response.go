@@ -18,6 +18,7 @@ type MenuResponse struct {
 	//Parents       []interface{} `json:"parents"`
 	//Fullname      string        `json:"fullname"`
 	Image         string `json:"image"`
+	ImageUrl      string `json:"image_url"`
 	IsUnavailable string `json:"isUnavailable"`
 	//ParentID      string        `json:"parentId,omitempty"`
 	//Type          string        `json:"type,omitempty"`

@@ -29,7 +29,7 @@ func SyncMenu(a *An) error {
 	}
 
 	if resp.StatusCode() != 200 {
-		log.Println("ошибка: " + resp.Status())
+		log.Println("sync: error" + resp.Status())
 		return nil
 	}
 
@@ -43,11 +43,10 @@ func SyncMenu(a *An) error {
 
 		previewImage := ""
 		if item.Image != "" {
-			fakeImageUrl := "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Lemon_-_whole_and_split.jpg/1280px-Lemon_-_whole_and_split.jpg"
 			// вообще есть прекрасные методы `os.TempDir()` и `os.CreateTemp()`, чтобы не изобретать свой tmp
 			tmpImage := filepath.Join(config.TempPatch, item.Image)
 			previewImage = filepath.Join(config.PreviewCachePatch, item.Image)
-			err = Download(tmpImage, fakeImageUrl)
+			err = Download(tmpImage, item.ImageUrl)
 			if err != nil {
 				log.Errorf("download: %s", err)
 				// опять же, если не удалось скачать изображение, то зачем продолжать?
@@ -156,7 +155,6 @@ func PostOrder(a *An, order *entity.OrderRequest) (*entity.PostOrderResponse, er
 		log.Print("Ответ")
 		log.Print(response)
 		return nil, fmt.Errorf("failed post order: %d", response.StatusCode())
-
 	}
 
 	return &result, err

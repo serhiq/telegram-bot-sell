@@ -98,6 +98,6 @@ func (a *An) Shutdown() {
 var UpdateMenu = func(a *An) {
 	err := SyncMenu(a)
 	if err != nil {
-		log.Printf("Ошибка синхронизации, %s", err)
+		log.Printf("sync: error , %s", err)
 	}
 }
