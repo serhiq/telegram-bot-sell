@@ -21,7 +21,7 @@ type MenuResponse struct {
 	IsUnavailable string `json:"isUnavailable"`
 	//ParentID      string        `json:"parentId,omitempty"`
 	//Type          string        `json:"type,omitempty"`
-	Price int `json:"price,omitempty"`
+	Price int `json:"price,omitempty"`	// а разве цена не может содержать копейки?
 	//Tax           string        `json:"tax,omitempty"`
 	MeasureName string `json:"measureName,omitempty"`
 	//TaxNumber     string        `json:"taxNumber,omitempty"`
@@ -31,7 +31,7 @@ type MenuResponse struct {
 type Menu []MenuResponse
 
 func (m *MenuResponse) CanAddToOrder() bool {
-
+	// я бы изобрел свой тип `bool` через интерфейсы `json.Marshaler`/`json.Unmarshaler`
 	if m.Group && (m.IsUnavailable == "" || m.IsUnavailable == "0") {
 		return true
 	}

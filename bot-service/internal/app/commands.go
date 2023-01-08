@@ -3,11 +3,12 @@ package app
 import (
 	"bot/internal/entity"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"strconv"
 	"strings"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	log "github.com/sirupsen/logrus"
 )
 
 func Respond(bot *tgbotapi.BotAPI, msg tgbotapi.MessageConfig) int {
@@ -65,7 +66,7 @@ func DisplayMenu(a *An, state *entity.Chat, parentUuid string) {
 func makeMenuKeyboard(a *An, parentUuid string) interface{} {
 	menuitems, err := a.Db.GetMenuItemByParent(parentUuid)
 	if err != nil {
-
+		// ай-яй-яй
 	}
 
 	buttons := []tgbotapi.InlineKeyboardButton{}

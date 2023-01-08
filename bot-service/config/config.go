@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 )
 
+// не используйте ссылку на текущий каталог, поскольку приложение может быть запущено с любым рабочим каталогом, что приведет к неочевидному поведению
+// я бы рекомендовал использовать пути относительно исполняемого файла
 const TempPatch = "./tmp/"
 const PreviewCachePatch = "./imageCache/"
 
@@ -20,6 +22,7 @@ type Config struct {
 func New() (*Config, error) {
 	config := &Config{}
 
+	// такой код предполагает, что пустое значение тоже допустимо, хотя по логике - нет
 	token, tokenExists := os.LookupEnv("TELEGRAM_TOKEN")
 	if !tokenExists {
 		return nil, fmt.Errorf("config: %s is not set", "TELEGRAM_TOKEN")

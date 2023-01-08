@@ -4,13 +4,14 @@ import (
 	"bot/config"
 	"bot/internal/entity"
 	"fmt"
-	"github.com/nfnt/resize"
-	log "github.com/sirupsen/logrus"
 	"image/jpeg"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/nfnt/resize"
+	log "github.com/sirupsen/logrus"
 )
 
 func SyncMenu(a *An) error {
@@ -43,11 +44,13 @@ func SyncMenu(a *An) error {
 		previewImage := ""
 		if item.Image != "" {
 			fakeImageUrl := "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Lemon_-_whole_and_split.jpg/1280px-Lemon_-_whole_and_split.jpg"
+			// вообще есть прекрасные методы `os.TempDir()` и `os.CreateTemp()`, чтобы не изобретать свой tmp
 			tmpImage := filepath.Join(config.TempPatch, item.Image)
 			previewImage = filepath.Join(config.PreviewCachePatch, item.Image)
 			err = Download(tmpImage, fakeImageUrl)
 			if err != nil {
 				log.Errorf("download: %s", err)
+				// опять же, если не удалось скачать изображение, то зачем продолжать?
 			}
 
 			err = resizeTmpFile(tmpImage, previewImage)
@@ -96,6 +99,7 @@ func resizeTmpFile(tmpDest string, filename string) error {
 	return nil
 }
 
+// я бы вместо `filepath` передавал `io.Writer` - решение гибче получится
 func Download(filepath string, url string) error {
 	out, err := os.Create(filepath)
 	if err != nil {
@@ -104,11 +108,16 @@ func Download(filepath string, url string) error {
 
 	defer out.Close()
 
+	// никогда не используйте дефолтный HttpClient - если заглянете в код, то обнаружите, что у него бесконечные таймауты
+	// то есть все может прекрасно так зависнуть
+	// и в целом странно, используя `resty` еще использовать и `http`
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
 	}
 
+	// просто закрыть тело недостаточно - его обязательно надо считать до конца даже в случае ошибки, иначе начнутся утечки памяти
+	// можно считывать в `io.Discard`
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
@@ -141,6 +150,8 @@ func PostOrder(a *An, order *entity.OrderRequest) (*entity.PostOrderResponse, er
 		SetHeader("Authorization", a.Cfg.Auth).
 		Post(endpoint)
 
+	// не совсем верно проверять только на 200, есть прекрасный метод `response.IsSuccess()`
+	// фактически успеход является любой код от 200 до 299, а если возможны перенаправления, то и до 399
 	if response.StatusCode() != 200 {
 		log.Print("Ответ")
 		log.Print(response)

@@ -5,7 +5,7 @@ import (
 )
 
 type UserCommand struct {
-	Command string
+	Command string	// стоит сделать "перечислением" через свой тип. И если поле сериализуется в `json`, то я бы всегда прописывал тег `json` - это явно укажет на возможность сериализации
 	Uuid    string
 }
 

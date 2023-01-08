@@ -2,9 +2,10 @@ package app
 
 import (
 	"bot/internal/entity"
+	"strings"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	log "github.com/sirupsen/logrus"
-	"strings"
 )
 
 func startsWith(prefix string, content string) bool {
@@ -18,7 +19,9 @@ func CommandRouter(msg *tgbotapi.Message, a *An) {
 		log.Println("Failed to get chat  %s", err)
 	}
 
+	// обработка отдельных команд в отдельных методах выглядела бы красивей
 	if startsWith("/start", msg.Text) {
+		// почему здесь в горутине, а остальные обработчики - нет?
 		go StartCommand(a.Bot, msg)
 	} else if msg.Text == BUTTON_START_NEW_ORDER {
 		if !state.HaveUserName() {
@@ -35,7 +38,8 @@ func CommandRouter(msg *tgbotapi.Message, a *An) {
 
 	} else if msg.Text == DISPLAY_MENU_BUTTON {
 		DisplayMenuRootMenu(a, state)
-
+		// почему где-то есть `return`, а где-то - нет?
+		// в перспективе создаст проблемы
 	} else if startsWith("🛒", msg.Text) {
 		DisplayOrder(a, state)
 		return
@@ -47,7 +51,10 @@ func CommandRouter(msg *tgbotapi.Message, a *An) {
 		result, err := PostOrder(a, order)
 		if err != nil {
 			log.Println("Ошибка в post заказе", err)
-
+			// если мы получили ошибку, то зачем идти дальше?
+			// более того, иногда метод может вернуть и результат, и ошибку. Но при этом результат неактуален
+			// понтяно, что тут метод Ваш и Ваша логика, но я бы так не делал
+			// если вернулась ошибка, то обрабатывать результат не стоит
 		}
 		if result != nil {
 			log.Print(result)
@@ -111,6 +118,7 @@ func CommandRouter(msg *tgbotapi.Message, a *An) {
 func ProcessKeyboardInput(data *UserCommand, chatId int64, a *An) {
 	state, err := a.Db.GetOrCreateChat(chatId)
 	if err != nil {
+		// пользователю тоже стоит что-то сообщить
 		log.Println("Failed to get chat  %s", err)
 		return
 	}
@@ -177,6 +185,8 @@ func deletePositionFromOrder(a *An, state *entity.Chat, item *entity.MenuItemDat
 	Respond(a.Bot, msg)
 }
 
+// почему возвращается `interface{}`, а не конкретный тип?
+// и я бы передавать не количество позиций, а весь заказ - тогда можно быть отобразить и сумму, что даже полезней количества позиций
 func makeOrderKeyboard(count string) interface{} {
 	var textBucket = "🛒  Корзина (" + count + ")"
 
