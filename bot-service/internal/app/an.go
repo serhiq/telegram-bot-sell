@@ -4,13 +4,15 @@ import (
 	"bot/config"
 	"bot/database"
 	"bot/internal/entity"
+	"time"
+
 	"github.com/go-co-op/gocron"
 	"github.com/go-resty/resty/v2"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
+// наименование структуры вообще не очевидно, что за `An`? Хоть `App` тогда уж
 type An struct {
 	Cfg *config.Config
 
@@ -45,6 +47,8 @@ func New(cfg *config.Config) (*An, error) {
 func (a *An) Start() {
 	s := gocron.NewScheduler(time.UTC)
 	s.Every(int(10)).Minutes().Do(UpdateMenu, a)
+	// запустить-запустили, а выключить в `Shutdown`?
+	// по сути методы `Start` и `Shutdown` должны быть зеркальны
 	s.StartAsync()
 
 	log.Printf("Bot online %s", a.Bot.Self.UserName)
@@ -54,6 +58,7 @@ func (a *An) Start() {
 
 	updates := a.Bot.GetUpdatesChan(u)
 
+	// это зачем? На таких странных строках комментарии бы не помешали
 	time.Sleep(time.Millisecond * 500)
 	updates.Clear()
 
@@ -73,6 +78,8 @@ func (a *An) Start() {
 		CommandRouter(update.Message, a)
 	}
 }
+
+// если есть `Start`, то ожидается все же `Stop`, а не `Shutdown`
 func (a *An) Shutdown() {
 	db, err := a.Db.Db.DB()
 	if err != nil {

@@ -93,6 +93,7 @@ func (c *OrderRequest) SumPositions() string {
 	return strconv.FormatInt(int64(sum), 10) + "руб"
 }
 
+// форматировать вывод явно не задача самого запроса на заказ
 func (c *OrderRequest) OrderDescription() string {
 	builder := strings.Builder{}
 
@@ -115,7 +116,8 @@ func (c *OrderRequest) OrderDescription() string {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-
+// уникальности до секунды может быть недостаточно, есть `time.UnixMilli()`/`time.UnixMicro()`/`time.UnixNano()`
+// и всегда есть еще `uuid` и `nanoid`
 func GetRandomOrderNumber() string {
 	return strconv.FormatInt(time.Now().Unix(), 10)
 }

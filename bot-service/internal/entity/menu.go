@@ -1,10 +1,12 @@
 package entity
 
 import (
-	"gorm.io/gorm"
 	"strconv"
+
+	"gorm.io/gorm"
 )
 
+// рано или поздно придется разделять сущности БД и JSON
 type MenuItemDatabase struct {
 	Name        string `json:"name"`
 	StoreID     string `json:"storeId,omitempty" gorm:"column:store_id"`
@@ -21,6 +23,8 @@ type Tabler interface {
 	TableName() string
 }
 
+// стоит все же называть структуры так, чтобы устраивало автоматическое наименование таблиц
+// иначе не очевидна связь структуры с таблицой в БД без вникания в код
 func (MenuItemDatabase) TableName() string {
 	return "menu"
 
