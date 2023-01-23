@@ -8,7 +8,7 @@ COPY . /app
 WORKDIR /app
 
 RUN #CGO_ENABLED=0 go build -o bot ./
-RUN CGO_ENABLED=0 go build -o bot ./cmd/sbot/
+RUN CGO_ENABLED=0 go build -o bot ./services/ssbot/cmd/app/
 
 
 RUN chmod +x /app/bot
