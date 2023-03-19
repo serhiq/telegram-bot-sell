@@ -24,7 +24,7 @@ type Product struct {
 	Group       bool   `json:"group"`
 	Image       string `json:"image"`
 	MeasureName string `json:"measureName,omitempty"  gorm:"column:measure"`
-	Price       int
+	Price       uint64 // Цена в копейках
 }
 
 type Tabler interface {

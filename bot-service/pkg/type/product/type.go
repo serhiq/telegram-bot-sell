@@ -1,6 +1,6 @@
 package product
 
-import "strconv"
+import _type "bot/pkg/type"
 
 type Product struct {
 	Name        string `json:"name"`
@@ -10,9 +10,9 @@ type Product struct {
 	Group       bool   `json:"group"`
 	Image       string `json:"image"`
 	MeasureName string `json:"measureName,omitempty"`
-	Price       int
+	Price       uint64 // Цена в копейках
 }
 
 func (p *Product) PriceString() string {
-	return strconv.FormatInt(int64(p.Price), 10) + " руб"
+	return _type.FormatPrice(p.Price)
 }

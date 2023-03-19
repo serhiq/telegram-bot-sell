@@ -2,31 +2,28 @@ package order
 
 import (
 	domainOrder "bot/pkg/type/order"
+	evo "github.com/softc24/evotor-resto-go"
+	"strconv"
+	"time"
 )
 
-func ToResponse(response *domainOrder.Order) *OrderRequest {
+func ToResponse(response *domainOrder.Order) *evo.Order {
 
-	positions := []PositionOrder{}
+	positions := []evo.OrderPosition{}
 
 	for _, p := range response.Positions {
-		positions = append(positions, PositionOrder{
+		positions = append(positions, evo.OrderPosition{
 			ProductUUID:       p.ProductUUID,
 			ProductName:       p.ProductName,
-			Price:             p.Price,
-			PriceWithDiscount: p.PriceWithDiscount,
-			Quantity:          p.Quantity,
+			Price:             evo.Money(p.Price),
+			PriceWithDiscount: evo.Money(p.Price),
+			Quantity:          evo.Quantity(p.Quantity),
 		})
 	}
+	// создаем заказ
+	order := evo.MakeOrder(strconv.FormatInt(time.Now().UnixMilli(), 32), response.Comment, evo.Contacts{
+		Phone: response.Contacts.Phone,
+	}, positions)
 
-	return &OrderRequest{
-		ID: response.ID,
-		Contacts: struct {
-			Phone string `json:"phone"`
-		}{
-			Phone: response.Contacts.Phone,
-		},
-		Positions: positions,
-		State:     "",
-		Comment:   "",
-	}
+	return &order
 }

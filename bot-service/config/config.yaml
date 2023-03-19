@@ -1,0 +1,21 @@
+# Настройки приложения
+app:
+  name: Jenny
+
+# Настройки бота Telegram
+telegram:
+  token: <YOUR_BOT_TOKEN>
+
+# Настройки базы данных MySQL
+database:
+  host: mysql
+  port: 3306
+  database_name: db_name
+  username: my_app_user
+  password: my_app_password
+
+# Настройки внешнего API ресторана
+restaurant_api:
+  base_url: https://example.com/api/v1
+  auth:  <YOUR_API_TOKEN>
+  store:  <YOUR_STORE_UUID>

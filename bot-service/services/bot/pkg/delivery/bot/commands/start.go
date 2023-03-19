@@ -27,3 +27,8 @@ func (s StartCommand) Execute() (bot.Command, error) {
 
 	return nil, nil
 }
+
+//
+//msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(tgbotapi.NewKeyboardButtonRow(
+//tgbotapi.NewKeyboardButtonContact("Предоставить номер телефона!"),
+//))

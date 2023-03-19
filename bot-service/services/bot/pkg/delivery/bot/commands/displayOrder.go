@@ -52,7 +52,7 @@ func (c DisplayOrder) Execute() (bot.Command, error) {
 	headerBuilder.WriteString("\nТелефон: ")
 	headerBuilder.WriteString(state.PhoneUser)
 
-	msg := tgbotapi.NewMessage(state.ChatId, headerBuilder.String()+state.GetOrder().OrderDescription())
+	msg := tgbotapi.NewMessage(state.ChatId, headerBuilder.String()+state.GetOrder().OrderDescriptionNew())
 
 	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(

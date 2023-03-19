@@ -1,8 +1,10 @@
 package order
 
 import (
+	_type "bot/pkg/type"
 	"bot/pkg/type/product"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -20,8 +22,8 @@ type Order struct {
 type Position struct {
 	ProductUUID       string
 	ProductName       string
-	Price             int
-	PriceWithDiscount int
+	Price             uint64
+	PriceWithDiscount uint64
 	Quantity          int
 }
 
@@ -59,30 +61,47 @@ func (c *Order) DecreaseMenuItem(item *product.Product) {
 }
 
 func (c *Order) CountPosition() string {
-	var count = 0
+	var count uint64 = 0
 	for _, position := range c.Positions {
-		count = count + position.Quantity
+		count = count + uint64(position.Quantity)
 	}
-	return strconv.FormatInt(int64(count), 10)
+	return strconv.FormatUint(count, 10)
 }
 
 func (c *Order) CountItemPosition(uuid string) string {
-	var count = 0
+	var count uint64 = 0
 	for _, position := range c.Positions {
 		if position.ProductUUID == uuid {
-			count = count + position.Quantity
+			count = count + uint64(position.Quantity)
 		}
 	}
-	return strconv.FormatInt(int64(count), 10)
+	return strconv.FormatUint(count, 10)
 }
 
 func (c *Order) SumPositions() string {
-	var sum = 0
+	var sum uint64 = 0
 	for _, position := range c.Positions {
-		sum = sum + (position.Quantity * position.PriceWithDiscount)
+		sum = sum + (uint64(position.Quantity) * uint64(position.PriceWithDiscount))
 	}
 
-	return strconv.FormatInt(int64(sum), 10) + "руб"
+	return strconv.FormatUint(sum, 10) + "руб"
+}
+
+func (c *Order) calculateTotal() uint64 {
+	var total uint64
+	for _, position := range c.Positions {
+		// Используем цену с учетом скидки, если она задана, иначе используем базовую цену
+		var price uint64
+		if position.PriceWithDiscount != 0 {
+			price = position.PriceWithDiscount
+		} else {
+			price = position.Price
+		}
+
+		total += price * uint64(position.Quantity)
+	}
+
+	return total
 }
 
 func (c *Order) OrderDescription() string {
@@ -96,14 +115,36 @@ func (c *Order) OrderDescription() string {
 		builder.WriteString("\n" + "    Цена: " + strconv.FormatInt(int64(position.Price), 10) + " руб")
 
 	}
-	builder.WriteString("\n")
-	builder.WriteString("\n")
-	builder.WriteString("\nОбщая сумма заказа: " + c.SumPositions())
 
 	builder.WriteString("\n")
 	builder.WriteString("\nЕсли все верно выбиерите действие:")
 
 	return builder.String()
+}
+
+func (c *Order) OrderDescriptionNew() string {
+	b := strings.Builder{}
+
+	b.WriteString("\n\nСостав заказа:")
+
+	for i, pos := range c.Positions {
+		var itemPrice uint64
+		if pos.PriceWithDiscount != 0 {
+			itemPrice = pos.PriceWithDiscount
+		} else {
+			itemPrice = pos.Price
+		}
+		itemStr := fmt.Sprintf("\n\n%d. %s\n    Кол-во: %d\n    Цена: %s \n", i+1, pos.ProductName, pos.Quantity, _type.FormatPrice(itemPrice))
+
+		b.WriteString(itemStr)
+	}
+
+	b.WriteString("\nОбщая сумма заказа: " + _type.FormatPrice(c.calculateTotal()))
+
+	b.WriteString("\n")
+	b.WriteString("\nЕсли все верно выберите действие:")
+
+	return b.String()
 }
 
 func (c *Order) ToJson() (string, error) {

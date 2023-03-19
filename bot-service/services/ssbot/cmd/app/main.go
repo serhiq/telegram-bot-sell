@@ -1,17 +1,16 @@
 package main
 
 import (
-	"bot/config"
 	"bot/pkg/restoClient"
 	"bot/pkg/store/mysql"
+	"bot/services/bot/pkg/config"
 	repositoryChat "bot/services/bot/pkg/repository/chat"
 	repositoryOrder "bot/services/bot/pkg/repository/order"
 	"bot/services/bot/pkg/repository/product"
 	"bot/services/bot/pkg/worker"
 	"bot/services/ssbot/internal/delivery/bot"
-	"github.com/go-resty/resty/v2"
+	r "github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
-	"os"
 )
 
 func main() {
@@ -22,13 +21,7 @@ func main() {
 		log.Fatalf("Config error: %s", err)
 	}
 
-	store, err := mysql.New(mysql.Settings{
-		Host:     os.Getenv("MYSQL_HOST"),
-		Port:     3306,
-		Database: os.Getenv("MYSQL_DATABASE"),
-		User:     os.Getenv("MYSQL_USER"),
-		Password: os.Getenv("MYSQL_PASSWORD"),
-	})
+	store, err := mysql.New(cfg.DBConfig)
 
 	if err != nil {
 		panic(err)
@@ -39,22 +32,22 @@ func main() {
 		panic(err)
 	}
 
-	restyClient := resty.New()
-	evoClient := restoClient.New(restyClient, &restoClient.Options{
-		Auth:    cfg.Auth,
-		Store:   cfg.Store,
-		BaseUrl: cfg.BaseUrl,
+	client := r.New()
+	evoClient := restoClient.New(client, &restoClient.Options{
+		Auth:    cfg.RestaurantAPI.Auth,
+		Store:   cfg.RestaurantAPI.Store,
+		BaseUrl: cfg.RestaurantAPI.BaseURL,
 	})
 
 	var repoProduct = product.New(store.Db)
 	var repoChat = repositoryChat.New(store.Db)
 	var repoOrder = repositoryOrder.New(evoClient)
 
-	syncWorker := worker.New(repoProduct, evoClient, restyClient)
+	syncWorker := worker.New(repoProduct, evoClient, r.New())
 	syncWorker.EnqueueUniquePeriodicWork()
 
 	sBot, err := bot.New(bot.Options{
-		Token: cfg.Token,
+		Token: cfg.Telegram.Token,
 	}, repoProduct, repoChat, repoOrder)
 
 	if err != nil {

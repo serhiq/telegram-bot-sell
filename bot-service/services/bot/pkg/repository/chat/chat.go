@@ -135,7 +135,7 @@ func (c *Chat) IsCorrectName(name string) bool {
 }
 
 func (c *Chat) IsCorrectPhone(phone string) bool {
-	return len(phone) > 4
+	return validateRussianPhoneNumber(phone)
 }
 
 type LastEditedMenuItem struct {

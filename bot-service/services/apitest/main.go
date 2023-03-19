@@ -1,5 +1,0 @@
-package apitest
-
-//func main() {
-//
-//}

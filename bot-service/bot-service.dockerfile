@@ -17,6 +17,9 @@ RUN chmod +x /app/bot
 FROM alpine:latest
 
 RUN mkdir /app
+RUN mkdir /app/config
+
+COPY ./config/config.yaml /app/config/config.yaml
 
 COPY --from=builder /app/bot /app
 

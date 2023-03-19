@@ -1,14 +1,15 @@
 package worker
 
 import (
-	"bot/config"
 	c "bot/pkg/restoClient"
+	"bot/services/bot/pkg/config"
 	repositoryProduct "bot/services/bot/pkg/repository/product"
 	"fmt"
 	"github.com/go-co-op/gocron"
 	"github.com/go-resty/resty/v2"
 	"github.com/nfnt/resize"
 	log "github.com/sirupsen/logrus"
+	evotorrestogo "github.com/softc24/evotor-resto-go"
 	"image/jpeg"
 	"os"
 	"path/filepath"
@@ -34,7 +35,7 @@ func (s SyncWorker) Start() error {
 
 	for _, product := range resp {
 
-		if !product.CanAddToOrder() {
+		if !isProductSupported(product) {
 			continue
 		}
 
@@ -46,16 +47,16 @@ func (s SyncWorker) Start() error {
 			Group:       product.Group,
 			Image:       "",
 			MeasureName: product.MeasureName,
-			Price:       product.Price,
+			Price:       uint64(product.Price),
 		}
 
-		if product.ImageNotEmpty() {
-			thumbnail, e := createThumbnail(s.client, product.Image, product.ImageUrl)
-			if e != nil {
-				log.Printf("sync: err create trumbnail, %s", err)
-				continue
+		if product.ImageURL != "" {
+			thumbnail, err := createThumbnail(s.client, product.UUID, product.ImageURL)
+			if err != nil {
+				log.Printf("sync: err create thumbnail, %s", err)
+			} else {
+				menuItem.Image = thumbnail
 			}
-			menuItem.Image = thumbnail
 		}
 		result = append(result, menuItem)
 	}
@@ -65,6 +66,23 @@ func (s SyncWorker) Start() error {
 		return fmt.Errorf("sync: err, %s", err)
 	}
 	return nil
+}
+
+func isProductSupported(p evotorrestogo.MenuItem) bool {
+
+	if p.IsUnavailable {
+		return false
+	}
+
+	if p.Group {
+		return true
+	}
+
+	if !p.Group && p.Type == "NORMAL" {
+		return true
+	}
+	return true
+
 }
 
 func createThumbnail(r *resty.Client, fileName string, url string) (string, error) {
@@ -95,7 +113,12 @@ func createThumbnail(r *resty.Client, fileName string, url string) (string, erro
 }
 
 func clearOldPreviews() {
-	//	todo
+	err := os.RemoveAll(config.PreviewCachePatch)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	fmt.Println("Previews cleared successfully")
 }
 
 func (s SyncWorker) Stop() {
@@ -129,7 +152,11 @@ func resizeTmpFile(tmpDest string, filename string) error {
 	if err != nil {
 		return err
 	}
-	file.Close()
+
+	err = file.Close()
+	if err != nil {
+		return err
+	}
 
 	m := resize.Resize(0, 300, img, resize.Lanczos3)
 

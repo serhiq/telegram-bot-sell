@@ -10,15 +10,7 @@ services:
       - "7777:7777"
 
     env_file:
-      - .env.example
-
-    environment:
-     PORT: 8088
-     MYSQL_USER: user_app
-     MYSQL_PASSWORD: password
-     MYSQL_DATABASE: a_bot_db
-     MYSQL_HOST: mysql
-
+      - .env.secret-example
 
     deploy:
       mode: replicated
@@ -41,6 +33,7 @@ services:
       MYSQL_DATABASE: a_bot_db
       MYSQL_USER: user_app
       MYSQL_PASSWORD: password
+      MYSQL_HOST: mysql
 
 
     ports:
@@ -68,7 +61,6 @@ services:
     networks:
       - gateway
 
-    
 
 networks:
   gateway: {}
